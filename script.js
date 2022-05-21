@@ -1,47 +1,38 @@
 const descriptionElement = document.getElementById("description");
 
 const about = () => {
-    descriptionElement.innerHTML = `I am Golu Rajak. I am software engineer in <a href="https://www.inocentum.in"
-    title="www.inocentum.in">Inocnetum</a>.
-In youtube I known as BrighterYT, I made videos in Discord Bot. I also made discord bot using discordpy.
-<br> I am learning Nestjs, Django.`;
+    descriptionElement.innerHTML = `I am Golu Rajak, a software engineer in <a href="https://www.inocentum.in"
+    title="www.inocentum.in" targer="_blank">Inocnetum</a>. In youtube people know me as BrighterYT. I made videos on
+    how to setup a Discord Bot. I also made discord bot using discordpy. <br>
+    Currently I am learning Nestjs and Django.`;
 };
 
 const link = () => {
-    /**
-     * facebook
-     * twitter
-     * linkedin
-     * github
-     * discord
-     * youtube
-     * gmail
-     */
 
     descriptionElement.innerHTML = `
     <div class="flex">
-    <a class="links">
+    <a class="links" href="https://www.facebook.com/golu7679/" target="_blank">
         <i class="fab fa-facebook"></i>
     </a>
-    <a class="links">
+    <a class="links" target="_blank" href="https://twitter.com/golu7679">
         <i class="fab fa-twitter"></i>
     </a>
-    <a class="links">
+    <a class="links" target="_blank" href="https://www.linkedin.com/in/golu-rajak-a8567a1b7/">
         <i class="fab fa-linkedin"></i>
     </a>
-    <a class="links">
+    <a class="links" target="_blank" href="https://github.com/golu7679">
         <i class="fab fa-github"></i>
     </a>
-    <a class="links">
+    <a class="links" target="_blank" href="https://discord.gg/NhK2mbw">
         <i class="fab fa-discord"></i>
     </a>
-    <a class="links">
+    <a class="links" target="_blank" href="https://www.youtube.com/c/BrighterYT">
         <i class="fab fa-youtube"></i>
     </a>
-    <a class="links">
+    <a class="links" target="_blank" href="https://www.instagram.com/golu701/">
         <i class="fab fa-instagram"></i>
     </a>
-    <a class="links">
+    <a class="links" target="_blank">
         <i class="fas fa-envelope"></i>
     </a>
     </div>
@@ -49,18 +40,6 @@ const link = () => {
 };
 
 const skills = () => {
-    /**
-     * c
-     * c++
-     * python
-     * java
-     * js
-     * ts
-     * Html
-     * css
-     * scss
-     *
-     */
     descriptionElement.innerHTML = `<img class="image-margin" src="https://img.shields.io/badge/-C%20Language-333333?style=flat&logo=c"/>
                                     <img class="image-margin" src="https://img.shields.io/badge/-C++%20-333333?style=flat&logo=cplusplus"/>
                                     <img class="image-margin" src="https://img.shields.io/badge/-Java-333333?style=flat&logo=java" />
@@ -82,7 +61,6 @@ const skills = () => {
 const cv = () => {
     let newButton = document.createElement("button");
     newButton.classList.add("bg-gradient1");
-    newButton.innerHTML = `<span> <i class="fas fa-download"></i> Download CV </span>`;
+    newButton.innerHTML = `<a href="cv.pdf" download> <span> <i class="fas fa-download"></i> Download CV </span> </a>`;
     descriptionElement.innerHTML = newButton.outerHTML;
 };
-// <img class="image-margin" src="
