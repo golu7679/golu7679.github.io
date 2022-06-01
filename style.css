@@ -1,3 +1,4 @@
+/* Mixins */
 * {
   padding: 0;
   margin: 0;
@@ -46,6 +47,7 @@ a {
   flex-direction: column;
   padding: 10px;
   margin: 20px;
+  overflow: auto;
 }
 
 .card img {
@@ -61,7 +63,6 @@ a {
   font-weight: 100;
 }
 
-/* Mixins */
 button {
   display: inline-block;
   margin: 20px 3px;
