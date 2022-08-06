@@ -32,7 +32,7 @@ const link = () => {
     <a class="links" target="_blank" href="https://www.instagram.com/golu701/">
         <i class="fab fa-instagram"></i>
     </a>
-    <a class="links" target="_blank">
+    <a class="links" href="mailto:golurajak811@gmail.com">
         <i class="fas fa-envelope"></i>
     </a>
     </div>
