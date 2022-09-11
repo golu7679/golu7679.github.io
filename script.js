@@ -1,10 +1,10 @@
 const descriptionElement = document.getElementById("description");
 
 const about = () => {
-    descriptionElement.innerHTML = `I am Golu Rajak, a software engineer in <a href="https://www.inocentum.in"
-    title="www.inocentum.in" targer="_blank">Inocnetum</a>. In youtube people know me as BrighterYT. I made videos on
-    how to setup a Discord Bot. I also made discord bot using discordpy. <br>
-    Currently I am learning Nestjs and Django.`;
+    descriptionElement.innerHTML = ` I am Golu Rajak, a Application Developer in <a href="https://www.unifiedinfotech.net"
+                title="www.unifiedinfotech.net" target="_blank">Unified Infotech</a>. In youtube people know me as BrighterYT. I made videos on
+            how to setup a Discord Bot. I also made discord bot using discordpy. <br>
+            Currently I am learning DevOps.`;
 };
 
 const link = () => {
