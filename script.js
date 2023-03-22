@@ -64,3 +64,11 @@ const cv = () => {
     newButton.innerHTML = `<a href="cv.pdf" download> <span> <i class="fas fa-download"></i> Download CV </span> </a>`;
     descriptionElement.innerHTML = newButton.outerHTML;
 };
+
+const website = () => {
+    let newButton = document.createElement("button");
+    newButton.classList.add("bg-gradient1");
+    // newButton.innerHTML = `<a href="devops.golurajak.ml"> DevOps </a>`;
+    newButton.innerHTML = `<a href="https://devops.golurajak.ml" target="_blank"> <span> <i class="fa-solid fa-cloud"></i> DevOps </span> </a>`;
+    descriptionElement.innerHTML = newButton.outerHTML;
+}

@@ -41,7 +41,7 @@ a {
   align-items: center;
   background: rgba(0, 0, 0, 0.388);
   height: 400px;
-  width: 400px;
+  width: 500px;
   border-radius: 10px;
   box-shadow: 10px 20px 36px 11px rgba(0, 0, 0, 0.258);
   flex-direction: column;
@@ -181,8 +181,10 @@ button:active span {
   button::before {
     height: 25px;
   }
+
   button span {
     padding: 0.25rem 0.438rem;
   }
 }
+
 /*# sourceMappingURL=style.css.map */
