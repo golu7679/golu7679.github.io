@@ -17,7 +17,7 @@ const link = () => {
     <a class="links" target="_blank" href="https://twitter.com/golu7679">
         <i class="fab fa-twitter"></i>
     </a>
-    <a class="links" target="_blank" href="https://www.linkedin.com/in/golu-rajak-a8567a1b7/">
+    <a class="links" target="_blank" href="https://www.linkedin.com/in/golu7679/">
         <i class="fab fa-linkedin"></i>
     </a>
     <a class="links" target="_blank" href="https://github.com/golu7679">
