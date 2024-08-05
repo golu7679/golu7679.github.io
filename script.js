@@ -61,7 +61,7 @@ const skills = () => {
 const cv = () => {
     let newButton = document.createElement("button");
     newButton.classList.add("bg-gradient1");
-    newButton.innerHTML = `<a href="cv.pdf" download> <span> <i class="fas fa-download"></i> Download CV </span> </a>`;
+    newButton.innerHTML = `<a href="golu_rajak_resume.pdf" download> <span> <i class="fas fa-download"></i> Download CV </span> </a>`;
     descriptionElement.innerHTML = newButton.outerHTML;
 };
 
