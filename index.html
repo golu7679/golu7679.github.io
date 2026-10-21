@@ -23,8 +23,8 @@ img { max-width: 100%; }
   --bg: #ffffff;
   --fg: #000000;
   --sub: #6b6b6b;
-  --accent: #d80073;
-  --accent-deep: #9e0055;
+  --accent: #008a00;
+  --accent-deep: #006100;
   --on-accent: #ffffff;
   --plate: #e8e8e8;
   --plate-line: #d2d2d2;
@@ -33,13 +33,13 @@ img { max-width: 100%; }
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #000000; --fg: #ffffff; --sub: #a3a3a3; --accent: #e3157f; --accent-deep: #a3005a;
+    --bg: #000000; --fg: #ffffff; --sub: #a3a3a3; --accent: #008a00; --accent-deep: #005700;
     --plate: #1f1f1f; --plate-line: #333333;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #000000; --fg: #ffffff; --sub: #a3a3a3; --accent: #e3157f; --accent-deep: #a3005a;
+  --bg: #000000; --fg: #ffffff; --sub: #a3a3a3; --accent: #008a00; --accent-deep: #005700;
   --plate: #1f1f1f; --plate-line: #333333;
   color-scheme: dark;
 }
@@ -472,7 +472,7 @@ dialog[open] .page { animation: turnstile .38s cubic-bezier(.1,.9,.2,1); }
     scene.add(sun);
 
     function applyTheme() {
-      const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#d80073';
+      const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#008a00';
       mat.color.set(accent).lerp(new THREE.Color(0xffffff), 0.35);
     }
     applyTheme();
