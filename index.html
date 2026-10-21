@@ -1,70 +1,536 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="My portfolio">
-    <meta name="author" content="Golu Rajak">
-    <meta name="keyword" content="golurajak.ml,my portfolio, portfolio">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500&display=swap');
-    </style>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Proza+Libre&display=swap');
-    </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css"
-        integrity="sha512-SzlrxWUlpfuzQ+pcUCosxcglQRNAq/DZjVsC0lE40xsADsfeQoEypE+enwcOiGjk/bSuGGKHEyjSoQ1zVisanQ=="
-        crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link rel="stylesheet" href="style.css">
-    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-    <title>Golu Rajak</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Golu Rajak, full-stack developer from Kolkata. Experience, projects and contact.">
+<style>
+:root { color-scheme: light; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+body { margin: 0; }
+img { max-width: 100%; }
+[hidden] { display: none !important; }
+</style>
+<title>Golu Rajak</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600&display=swap">
+<style>
+/* Layout: a Windows Phone start screen that fits one desktop viewport. An 8x4 tile grid with custom-sized
+   areas (3D hero, section live tiles, stat tiles, link tiles); each section tile opens a full page in a
+   dialog that turns in like a WP app page. Narrow or short screens fall back to a scrolling 2-column grid. */
+:root {
+  --bg: #ffffff;
+  --fg: #000000;
+  --sub: #6b6b6b;
+  --accent: #0050ef;
+  --accent-deep: #003bb3;
+  --on-accent: #ffffff;
+  --plate: #e8e8e8;
+  --plate-line: #d2d2d2;
+  --font: "Segoe UI", "Open Sans", "Helvetica Neue", Arial, sans-serif;
+  --gap: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #000000; --fg: #ffffff; --sub: #a3a3a3; --accent: #1b62f5; --accent-deep: #0a46c4;
+    --plate: #1f1f1f; --plate-line: #333333;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #000000; --fg: #ffffff; --sub: #a3a3a3; --accent: #1b62f5; --accent-deep: #0a46c4;
+  --plate: #1f1f1f; --plate-line: #333333;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+html:has(dialog[open]) { overflow: hidden; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font); font-size: 15px; line-height: 1.45; overflow-x: hidden; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; }
+
+/* ---------- Start screen ---------- */
+.screen { max-width: 1400px; margin: 0 auto; padding-inline: 24px; padding-block: 18px 24px; display: grid; grid-template-rows: auto 1fr; gap: 14px; overflow: hidden; }
+.head { display: flex; align-items: flex-end; justify-content: space-between; gap: 8px 24px; flex-wrap: wrap; min-width: 0; }
+.pano { margin: 0 0 0 -4px; white-space: nowrap; font-weight: 300; font-size: clamp(52px, 9vh, 112px); line-height: .95; letter-spacing: -.03em; }
+.pano-sub { margin: 0 0 6px; display: flex; flex-wrap: wrap; gap: 4px 18px; font-size: 17px; font-weight: 300; color: var(--sub); }
+.pano-sub b { color: var(--accent); font-weight: 400; }
+
+.start { display: grid; gap: var(--gap); grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: minmax(150px, auto); min-height: 0; }
+.t { position: relative; overflow: hidden; min-width: 0; min-height: 0; background: var(--accent); color: var(--on-accent); padding: 14px; display: flex; flex-direction: column; gap: 6px; border: 0; text-align: left; }
+.t.plate { background: var(--plate); color: var(--fg); }
+.t.deep { background: var(--accent-deep); }
+.wide { grid-column: span 2; }
+.tname { margin-top: auto; font-size: 13px; position: relative; z-index: 1; }
+.cap { font-size: 12px; letter-spacing: .06em; text-transform: uppercase; opacity: .82; }
+
+/* Press tilt, the signature Windows Phone touch feedback. */
+.tilt { transition: transform .12s ease-out; cursor: pointer; }
+.tilt:active { transform: perspective(700px) scale(.97) rotateX(3deg); }
+.tilt:focus-visible { outline: 3px solid var(--fg); outline-offset: 2px; }
+
+/* Live tiles: two stacked faces that slide up and back; the front face is the resting state. */
+.live { padding: 0; }
+.faces { position: absolute; inset: 0; display: grid; grid-template-rows: 1fr 1fr; height: 200%; animation: peek 10s cubic-bezier(.6,0,.2,1) infinite; animation-delay: var(--d, 0s); }
+.face { padding: 14px; display: flex; flex-direction: column; gap: 6px; min-height: 0; overflow: hidden; }
+.face.back { background: var(--accent-deep); }
+.deep .face.back { background: var(--accent); }
+.plate .face.back { background: var(--accent); color: var(--on-accent); }
+@keyframes peek { 0%, 55% { transform: translateY(0); } 62%, 90% { transform: translateY(-50%); } 97%, 100% { transform: translateY(0); } }
+.live .face { padding-bottom: 36px; }
+.live .tname-fixed { position: absolute; left: 14px; bottom: 12px; font-size: 13px; z-index: 2; }
+.face .spacer { flex: 1; }
+
+.big { font-weight: 300; font-size: clamp(34px, 6.4vh, 60px); line-height: 1; letter-spacing: -.02em; }
+.h { margin: 0; font-weight: 300; font-size: clamp(22px, 3.6vh, 34px); line-height: 1.05; letter-spacing: -.01em; }
+.sm { font-size: 14px; opacity: .9; }
+.rows { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; font-size: 14px; }
+.rows li { display: grid; padding-left: 10px; border-left: 3px solid color-mix(in srgb, var(--on-accent) 55%, transparent); line-height: 1.3; }
+.rows li span { font-size: 12.5px; opacity: .8; }
+
+/* 3D tile */
+.gl { padding: 0; min-height: 280px; }
+.gl canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.gl .over { position: relative; z-index: 1; margin-top: auto; padding: 16px; display: grid; gap: 2px; background: linear-gradient(transparent, color-mix(in srgb, var(--accent-deep) 85%, transparent)); pointer-events: none; }
+.gl .over b { font-weight: 300; font-size: clamp(22px, 3.4vh, 32px); line-height: 1.1; }
+.gl .over span { font-size: 13px; opacity: .85; }
+
+.link svg { width: clamp(28px, 4.4vh, 40px); height: clamp(28px, 4.4vh, 40px); }
+.icon { width: clamp(28px, 4.4vh, 40px); height: clamp(28px, 4.4vh, 40px); flex: none; }
+
+/* Desktop: everything fits one viewport. */
+@media (min-width: 960px) and (min-height: 620px) {
+  body { overflow: hidden; }
+  .screen { height: 100%; }
+  .start {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    grid-template-rows: repeat(4, minmax(0, 1fr));
+    grid-auto-rows: unset;
+    grid-template-areas:
+      "gl   gl   gl   gl   exp  exp  abt  abt"
+      "gl   gl   gl   gl   exp  exp  s1   s2"
+      "prj  prj  prj  brg  brg  ct   ct   s3"
+      "prj  prj  prj  brg  brg  ln   gh   x";
+  }
+  .wide { grid-column: auto; }
+  .gl { grid-area: gl; min-height: 0; } .a-exp { grid-area: exp; } .a-abt { grid-area: abt; }
+  .a-s1 { grid-area: s1; } .a-s2 { grid-area: s2; } .a-s3 { grid-area: s3; }
+  .a-prj { grid-area: prj; } .a-brg { grid-area: brg; } .a-ct { grid-area: ct; }
+  .a-ln { grid-area: ln; } .a-gh { grid-area: gh; } .a-x { grid-area: x; }
+}
+@media (max-width: 600px) {
+  .screen { padding-inline: 16px; }
+}
+
+/* ---------- Detail pages (dialogs) ---------- */
+dialog { padding: 0; border: 0; margin: 0; width: 100%; max-width: 100%; height: 100%; max-height: 100%; background: var(--bg); color: var(--fg); }
+dialog::backdrop { background: var(--bg); }
+.page { max-width: 980px; margin: 0 auto; padding-inline: 24px; padding-block: 22px 48px; transform-origin: left center; }
+dialog[open] .page { animation: turnstile .38s cubic-bezier(.1,.9,.2,1); }
+@keyframes turnstile { from { transform: perspective(1200px) rotateY(-70deg); opacity: 0; } to { transform: none; opacity: 1; } }
+.page-top { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+.app { font-size: 13px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+.close { width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--fg); background: transparent; cursor: pointer; display: grid; place-items: center; flex: none; }
+.close:active { background: var(--fg); color: var(--bg); }
+.close:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.close svg { width: 18px; height: 18px; }
+.page h2 { margin: 6px 0 20px -3px; font-weight: 300; font-size: clamp(44px, 8vw, 84px); line-height: 1; letter-spacing: -.03em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lead { margin: 0 0 22px; color: var(--sub); font-size: 16px; max-width: 62ch; }
+.pg { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--gap); }
+.pg .t { padding: 18px; gap: 8px; }
+.p2 { grid-column: span 2; } .p3 { grid-column: span 3; } .p6 { grid-column: span 6; }
+.pg p { margin: 0; }
+.pg h3 { margin: 0; font-weight: 300; font-size: clamp(22px, 2.6vw, 30px); line-height: 1.1; overflow-wrap: anywhere; }
+.org { font-weight: 600; }
+.steps { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 10px; }
+.steps li { display: grid; padding-left: 12px; border-left: 3px solid color-mix(in srgb, var(--on-accent) 55%, transparent); }
+.steps b { font-weight: 600; }
+.steps span { font-size: 13px; opacity: .85; }
+.kv { display: grid; }
+.kv div { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 14px; padding-block: 12px; border-bottom: 1px solid var(--plate-line); }
+.kv div:last-child { border-bottom: 0; }
+.kv b { font-weight: 600; }
+.kv span { color: var(--sub); font-size: 14px; }
+.kv i { font-style: normal; color: var(--sub); font-size: 13px; grid-row: 1; grid-column: 2; font-variant-numeric: tabular-nums; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chips span { font-size: 13px; padding: 4px 10px; background: color-mix(in srgb, currentColor 13%, transparent); }
+.mini { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.mini div { background: color-mix(in srgb, var(--on-accent) 14%, transparent); padding: 10px 12px; display: grid; gap: 1px; min-width: 0; }
+.mini b { font-weight: 600; font-size: 14px; }
+.mini span { font-size: 12.5px; opacity: .85; }
+.mini i { font-style: normal; font-size: 11.5px; opacity: .75; }
+.stats { display: flex; flex-wrap: wrap; gap: 8px 28px; padding-top: 6px; }
+.stats div { display: grid; }
+.stats b { font-weight: 300; font-size: 32px; line-height: 1; font-variant-numeric: tabular-nums; }
+.stats span { font-size: 12.5px; opacity: .85; }
+.list { list-style: none; margin: 0; padding: 0; display: grid; }
+.list li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 14px; padding-block: 9px; border-bottom: 1px solid var(--plate-line); font-size: 14px; align-items: baseline; }
+.list li:last-child { border-bottom: 0; }
+.list .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.list .m { color: var(--sub); font-size: 13px; font-variant-numeric: tabular-nums; }
+.go { margin-top: auto; display: flex; justify-content: space-between; align-items: end; font-size: 13px; }
+.go svg { width: 26px; height: 26px; }
+.mail-row { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; }
+.mail-row code { font-family: var(--font); font-size: clamp(17px, 2vw, 22px); user-select: all; word-break: break-all; }
+.btn { font: 600 14px var(--font); padding: 9px 18px; border: 2px solid var(--on-accent); background: transparent; color: var(--on-accent); cursor: pointer; }
+.btn:active { background: var(--on-accent); color: var(--accent); }
+.btn:focus-visible { outline: 3px solid var(--fg); outline-offset: 2px; }
+
+@media (max-width: 760px) {
+  .pg { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .p2, .p3, .p6 { grid-column: span 2; }
+  .mini { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 600px) {
+  .page { padding-inline: 16px; }
+  .mini { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .faces, dialog[open] .page { animation: none; }
+  .tilt, .tilt:active { transition: none; transform: none; }
+}
+</style>
 </head>
-
 <body>
-    <div class="card">
-        <img src="avatar.jpeg" height="100" alt="">
-        <h2>Golu Rajak</h2>
-        <div>
-            <button class="bg-gradient1" onclick="about()">
-                <span>
-                    <i class="fas fa-info-circle"></i> About
-                </span>
-            </button>
-            <button class="bg-gradient1" onclick="link()">
-                <span>
-                    <i class="fas fa-link"></i> Links
-                </span>
-            </button>
-            <button class="bg-gradient1" onclick="skills()">
-                <span>
-                    <i class="fas fa-cog"></i> Skills
-                </span>
-            </button>
-            <button class="bg-gradient1" onclick="cv()">
-                <span>
-                    <i class="fas fa-user"></i> CV
-                </span>
-            </button>
-            <button class="bg-gradient1" onclick="website()">
-                <span>
-                    <i class="fa-solid fa-earth-asia"></i> Website
-                </span>
-            </button>
-        </div>
 
-        <div id="description">
+<!-- Start screen -->
+<main class="screen">
+  <header class="head">
+    <h1 class="pano" aria-label="Golu Rajak">golu rajak</h1>
+    <p class="pano-sub"><b>full-stack developer</b><span>kolkata, india</span><span>building since 2021</span></p>
+  </header>
 
-            I am Golu Rajak, a Application Developer in <a href="https://www.unifiedinfotech.net"
-                title="www.unifiedinfotech.net" target="_blank">Unified Infotech</a>. In youtube people know me as
-            BrighterYT. I made videos on
-            how to setup a Discord Bot. I also made discord bot using discordpy. <br>
-            Currently I am learning DevOps.
-
-        </div>
+  <div class="start">
+    <div class="t gl wide" id="gltile" role="img" aria-label="3D tile: a field of blocks rippling in a wave that follows the pointer">
+      <div class="over"><b>Building full-stack applications.</b><span>Always thinking about Rust.</span></div>
     </div>
-</body>
-<script src="script.js"></script>
 
+    <button class="t live tilt wide a-exp" data-open="experience" aria-label="Open experience">
+      <span class="faces">
+        <span class="face"><span class="cap">Aug 2022 &ndash; Mar 2025</span><span class="h">Application Developer</span><span class="sm">Unified Infotech</span></span>
+        <span class="face back"><ul class="rows">
+          <li>Junior Software Engineer<span>Inocentum &middot; 2021&ndash;22</span></li>
+          <li>Full-stack Developer Intern<span>Inocentum &middot; 2021</span></li>
+          <li>MCA<span>Chandigarh University &middot; 2023</span></li>
+        </ul></span>
+      </span>
+      <span class="tname-fixed">experience</span>
+    </button>
+
+    <button class="t plate live tilt wide a-abt" data-open="about" aria-label="Open about">
+      <span class="faces" style="--d:1.5s">
+        <span class="face"><span class="h">Full-stack developer from Kolkata.</span></span>
+        <span class="face back"><span class="sm">Mobile apps and everything they depend on: APIs, jobs, admin tools.</span></span>
+      </span>
+      <span class="tname-fixed">about</span>
+    </button>
+
+    <div class="t live a-s1 deep"><span class="faces" style="--d:3s"><span class="face"><span class="big">5</span><span class="tname">years</span></span><span class="face back"><span class="sm">Shipping software since May 2021</span></span></span></div>
+    <div class="t live a-s2"><span class="faces" style="--d:4.5s"><span class="face"><span class="big">36</span><span class="tname">repos</span></span><span class="face back"><span class="sm">Public on GitHub since 2019</span></span></span></div>
+
+    <button class="t deep live tilt wide a-prj" data-open="projects" aria-label="Open projects">
+      <span class="faces" style="--d:.8s">
+        <span class="face"><span class="cap">Featured</span><span class="big" style="font-size:clamp(44px,9vh,92px)">yollo</span><span class="sm">Social photo app &middot; 2,473 commits across 8 repos</span></span>
+        <span class="face back"><ul class="rows">
+          <li>react-native-share-with-social-media<span>Open-source npm package</span></li>
+          <li>expressts-boilerplate<span>Express + TypeScript starter kit</span></li>
+          <li>Earlier work<span>36 public repositories</span></li>
+        </ul></span>
+      </span>
+      <span class="tname-fixed">projects</span>
+    </button>
+
+    <button class="t live tilt wide a-brg" data-open="bring" aria-label="Open what I bring">
+      <span class="faces" style="--d:2.3s">
+        <span class="face"><span class="cap">End to end</span><span class="h">One person who can follow a feature through every layer</span></span>
+        <span class="face back"><span class="cap">Also</span><span class="h">The right language for the job. Years of client delivery.</span></span>
+      </span>
+      <span class="tname-fixed">what i bring</span>
+    </button>
+
+    <button class="t deep tilt wide a-ct" data-open="contact" aria-label="Open contact">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14"/><path d="m3 6 9 7 9-7"/></svg>
+      <span class="sm" style="overflow-wrap:anywhere">golurajak811@gmail.com</span>
+      <span class="tname">contact</span>
+    </button>
+
+    <div class="t plate live a-s3"><span class="faces" style="--d:6s"><span class="face"><span class="big">MCA</span><span class="tname">degree</span></span><span class="face back"><span class="sm">Chandigarh University, 2023</span></span></span></div>
+
+    <a class="t link tilt a-ln" href="https://www.linkedin.com/in/golu7679" aria-label="LinkedIn">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM3 9.5h4v11H3v-11Zm6.5 0h3.8v1.6h.1c.5-1 1.8-2 3.8-2 4 0 4.8 2.6 4.8 6v5.4h-4v-4.8c0-1.2 0-2.6-1.6-2.6s-1.9 1.2-1.9 2.5v4.9h-4v-11Z"/></svg>
+      <span class="tname">linkedin</span>
+    </a>
+    <a class="t link deep tilt a-gh" href="https://github.com/golu7679" aria-label="GitHub">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 1.5a10.5 10.5 0 0 0-3.3 20.5c.5.1.7-.2.7-.5v-1.8c-2.9.6-3.5-1.4-3.5-1.4-.5-1.2-1.2-1.5-1.2-1.5-1-.7.1-.7.1-.7 1 .1 1.6 1.1 1.6 1.1.9 1.6 2.5 1.2 3.1.9.1-.7.4-1.2.7-1.4-2.3-.3-4.8-1.2-4.8-5.2 0-1.1.4-2.1 1.1-2.8-.1-.3-.5-1.4.1-2.8 0 0 .9-.3 2.9 1.1a10 10 0 0 1 5.2 0c2-1.4 2.9-1.1 2.9-1.1.6 1.4.2 2.5.1 2.8.7.7 1.1 1.7 1.1 2.8 0 4-2.5 4.9-4.8 5.2.4.3.7 1 .7 1.9v2.9c0 .3.2.6.7.5A10.5 10.5 0 0 0 12 1.5Z"/></svg>
+      <span class="tname">github</span>
+    </a>
+    <a class="t link tilt a-x" href="https://x.com/golu7679" aria-label="X">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.8 2.5h3.1l-6.8 7.8 8 10.6h-6.3l-4.9-6.4-5.6 6.4H2.2l7.3-8.3L1.8 2.5h6.4l4.4 5.9 5.2-5.9Zm-1.1 16.5h1.7L7.4 4.3H5.6L16.7 19Z"/></svg>
+      <span class="tname">x</span>
+    </a>
+  </div>
+</main>
+
+<!-- Detail pages. The close button and Esc both close; data-open buttons and #hash links open them. -->
+<dialog id="about" aria-labelledby="about-h">
+  <div class="page">
+    <div class="page-top"><span class="app">Golu Rajak</span><button class="close" data-close aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 5l14 14M19 5 5 19"/></svg></button></div>
+    <h2 id="about-h">about</h2>
+    <div class="pg">
+      <div class="t p6" style="padding:24px">
+        <p style="font-size:clamp(18px,2vw,22px);font-weight:300;line-height:1.4;max-width:58ch">I'm a full-stack developer from Kolkata. I build mobile apps and everything they depend on: the API, the background jobs, the admin tools and the services in between. Mostly TypeScript, with Go, Rust and Python where they fit.</p>
+      </div>
+      <div class="t plate p3">
+        <span class="cap">At a glance</span>
+        <div class="kv">
+          <div><b>Based in</b><i>Greater Kolkata</i></div>
+          <div><b>Building software since</b><i>2021</i></div>
+          <div><b>Degree</b><i>MCA</i></div>
+          <div><b>On GitHub since</b><i>2019</i></div>
+        </div>
+      </div>
+      <div class="t deep p3">
+        <span class="cap">Languages and tools</span>
+        <div class="chips"><span>TypeScript</span><span>React Native</span><span>Node.js</span><span>Express</span><span>Angular</span><span>MongoDB</span><span>Redis</span><span>gRPC</span><span>Socket.IO</span><span>Go</span><span>Rust</span><span>Python</span><span>Kotlin</span><span>Tailwind</span><span>Firebase</span></div>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="experience" aria-labelledby="experience-h">
+  <div class="page">
+    <div class="page-top"><span class="app">Golu Rajak</span><button class="close" data-close aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 5l14 14M19 5 5 19"/></svg></button></div>
+    <h2 id="experience-h">experience</h2>
+    <p class="lead">From an internship in 2021 to building full products across every layer.</p>
+    <div class="pg">
+      <div class="t p3">
+        <span class="cap">Aug 2022 &ndash; Mar 2025 &middot; 2 yrs 8 mos</span>
+        <h3>Application Developer</h3>
+        <span class="org">Unified Infotech</span>
+        <span class="tname">Full-time</span>
+      </div>
+      <div class="t deep p3">
+        <span class="cap">May 2021 &ndash; Aug 2022 &middot; 1 yr 4 mos</span>
+        <h3>Inocentum Technologies</h3>
+        <ul class="steps">
+          <li><b>Junior Software Engineer</b><span>Sep 2021 &ndash; Aug 2022</span></li>
+          <li><b>Full-stack Developer Intern</b><span>May 2021 &ndash; Aug 2021</span></li>
+        </ul>
+        <span class="tname">Asansol, West Bengal &middot; Full-time</span>
+      </div>
+      <div class="t plate p6">
+        <span class="cap">Education</span>
+        <div class="kv">
+          <div><b>Master of Computer Applications (MCA)</b><i>2022 &ndash; 2023</i><span>Chandigarh University</span></div>
+          <div><b>BCA, Computer Programming</b><i>2018 &ndash; 2021</i><span>Bidhan Chandra College</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="projects" aria-labelledby="projects-h">
+  <div class="page">
+    <div class="page-top"><span class="app">Golu Rajak</span><button class="close" data-close aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 5l14 14M19 5 5 19"/></svg></button></div>
+    <h2 id="projects-h">projects</h2>
+    <p class="lead">One large platform, a published open-source package, and the smaller things I built along the way.</p>
+    <div class="pg">
+      <article class="t p6" style="padding:22px;gap:14px">
+        <span class="cap">Featured &middot; Social photo app</span>
+        <h3 style="font-size:clamp(40px,5.5vw,64px);line-height:.95;letter-spacing:-.03em">yollo</h3>
+        <p style="max-width:62ch;opacity:.92">A photo-sharing app for iOS and Android where posts expire, can trend, and come back later as memories. I worked across the whole platform, from the app people install to the services that keep it running.</p>
+        <div class="mini">
+          <div><i>React Native</i><b>Mobile app</b><span>iOS and Android, live on the App Store</span></div>
+          <div><i>Node + Express</i><b>API server</b><span>REST, gRPC and sockets on MongoDB</span></div>
+          <div><i>Go</i><b>Scheduler</b><span>Eight timed jobs over gRPC</span></div>
+          <div><i>Rust</i><b>Ops console</b><span>Support and push-testing tool</span></div>
+          <div><i>Python</i><b>Image moderation</b><span>FastAPI photo screening</span></div>
+          <div><i>Angular</i><b>Web</b><span>Site, admin, share links</span></div>
+        </div>
+        <div class="stats">
+          <div><b>2,473</b><span>commits authored</span></div>
+          <div><b>8</b><span>repositories</span></div>
+          <div><b>5</b><span>languages</span></div>
+          <div><b>2023&ndash;now</b><span>active</span></div>
+        </div>
+      </article>
+      <a class="t deep tilt p3" href="https://github.com/golu7679/react-native-share-with-social-media">
+        <span class="cap">Open source &middot; npm</span>
+        <h3>react-native-share-with-social-media</h3>
+        <p style="font-size:14px;opacity:.9">One-call sharing from a React Native app straight into another app, with no extra screens or pop-ups.</p>
+        <div class="chips"><span>SMS</span><span>Instagram</span><span>Telegram</span><span>WhatsApp</span><span>Snapchat</span></div>
+        <span class="go"><span>Kotlin + TypeScript</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="10.5"/><path d="M8 12h8m-3.5-3.5L16 12l-3.5 3.5"/></svg></span>
+      </a>
+      <a class="t tilt p3" href="https://github.com/golu7679/expressts-boilerplate">
+        <span class="cap">Open source &middot; Starter kit</span>
+        <h3>expressts-boilerplate</h3>
+        <p style="font-size:14px;opacity:.9">An Express and TypeScript starter kit I use to skip the setup work at the start of a new API.</p>
+        <span class="go"><span>TypeScript</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="10.5"/><path d="M8 12h8m-3.5-3.5L16 12l-3.5 3.5"/></svg></span>
+      </a>
+      <div class="t plate p6">
+        <span class="cap">Earlier work on GitHub</span>
+        <ul class="list">
+          <li><span class="nm">hotel-reservation &middot; React, Express, MongoDB, social login</span><span class="m">JavaScript</span><span class="m">2022</span></li>
+          <li><span class="nm">mean-chat-app</span><span class="m">TypeScript</span><span class="m">2022</span></li>
+          <li><span class="nm">google-form-angular-nestjs</span><span class="m">TypeScript</span><span class="m">2023</span></li>
+          <li><span class="nm">discord-bot-ts</span><span class="m">TypeScript</span><span class="m">2024</span></li>
+        </ul>
+        <a href="https://github.com/golu7679?tab=repositories" style="color:var(--accent);font-weight:600;font-size:14px">All 36 repositories &rsaquo;</a>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="bring" aria-labelledby="bring-h">
+  <div class="page">
+    <div class="page-top"><span class="app">Golu Rajak</span><button class="close" data-close aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 5l14 14M19 5 5 19"/></svg></button></div>
+    <h2 id="bring-h">what i bring</h2>
+    <p class="lead">What a team gets when I join a project.</p>
+    <div class="pg">
+      <div class="t p2" style="min-height:240px">
+        <span class="cap">End to end</span>
+        <h3>One person who can follow a feature through every layer</h3>
+        <p class="tname" style="font-size:14px">Screen, endpoint, queue, scheduled job and admin view. Fewer hand-offs, fewer gaps.</p>
+      </div>
+      <div class="t deep p2" style="min-height:240px">
+        <span class="cap">Right tool</span>
+        <h3>I pick the language that fits the job</h3>
+        <p class="tname" style="font-size:14px">TypeScript for product code, Go for schedulers, Rust for internal tools, Python where the ML libraries live.</p>
+      </div>
+      <div class="t p2" style="min-height:240px">
+        <span class="cap">Client delivery</span>
+        <h3>Years of building to someone else's brief</h3>
+        <p class="tname" style="font-size:14px">Tailored applications delivered with teams to client requirements, plus App Store releases and production services.</p>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="contact" aria-labelledby="contact-h">
+  <div class="page">
+    <div class="page-top"><span class="app">Golu Rajak</span><button class="close" data-close aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 5l14 14M19 5 5 19"/></svg></button></div>
+    <h2 id="contact-h">contact</h2>
+    <div class="pg">
+      <div class="t p6" style="padding:24px;gap:18px">
+        <span class="cap">Email</span>
+        <h3 style="font-size:clamp(30px,4.4vw,52px);line-height:1;letter-spacing:-.02em">Let's build something together.</h3>
+        <div class="mail-row">
+          <code id="email">golurajak811@gmail.com</code>
+          <button class="btn" id="copy" type="button">Copy email</button>
+        </div>
+      </div>
+      <a class="t deep tilt p3" href="https://www.linkedin.com/in/golu7679"><span class="cap">LinkedIn</span><h3>in/golu7679</h3></a>
+      <a class="t tilt p3" href="https://github.com/golu7679"><span class="cap">GitHub</span><h3>golu7679</h3></a>
+      <a class="t tilt p3" href="https://x.com/golu7679"><span class="cap">X</span><h3>@golu7679</h3></a>
+      <a class="t deep tilt p3" href="https://bugdocs.xyz"><span class="cap">Website</span><h3>bugdocs.xyz</h3></a>
+    </div>
+  </div>
+</dialog>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+  // Section pages: tiles with data-open show the matching <dialog>; Esc and the close button dismiss it.
+  // A bare #section in the link (e.g. #experience) opens that page on load.
+  document.querySelectorAll('[data-open]').forEach((b) => b.addEventListener('click', () => document.getElementById(b.dataset.open).showModal()));
+  document.querySelectorAll('dialog').forEach((d) => {
+    d.querySelector('[data-close]').addEventListener('click', () => d.close());
+    d.addEventListener('click', (e) => { if (e.target === d) d.close(); });
+  });
+  const fromHash = location.hash.slice(1) && document.getElementById(location.hash.slice(1));
+  if (fromHash && fromHash.tagName === 'DIALOG') fromHash.showModal();
+
+  // Copy the address; if the clipboard is refused, select it so the viewer can copy by hand.
+  const btn = document.getElementById('copy');
+  const email = document.getElementById('email');
+  btn.addEventListener('click', () => {
+    const select = () => { const r = document.createRange(); r.selectNodeContents(email); const s = getSelection(); s.removeAllRanges(); s.addRange(r); };
+    const done = (t) => { btn.textContent = t; setTimeout(() => (btn.textContent = 'Copy email'), 1600); };
+    if (!navigator.clipboard) { select(); return done('Selected'); }
+    navigator.clipboard.writeText(email.textContent).then(() => done('Copied'), () => { select(); done('Selected'); });
+  });
+
+  // 3D live tile: a grid of blocks rippling outward from the pointer, drawn in the theme accent.
+  // If three.js fails to load the tile keeps its flat accent fill and caption.
+  (function () {
+    const host = document.getElementById('gltile');
+    if (!window.THREE || !host) return;
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let renderer;
+    try { renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); } catch (e) { return; }
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    host.prepend(renderer.domElement);
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 100);
+    camera.position.set(0, 13, 15);
+    camera.lookAt(0, 0, 1);
+
+    const COLS = 20, ROWS = 12, STEP = 1.05;
+    const geo = new THREE.BoxGeometry(0.9, 1, 0.9);
+    geo.translate(0, 0.5, 0); // grow upward from the floor
+    const mat = new THREE.MeshLambertMaterial({ color: 0xffffff });
+    const mesh = new THREE.InstancedMesh(geo, mat, COLS * ROWS);
+    scene.add(mesh);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+    const sun = new THREE.DirectionalLight(0xffffff, 0.75);
+    sun.position.set(-6, 12, 8);
+    scene.add(sun);
+
+    function applyTheme() {
+      const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#0050ef';
+      mat.color.set(accent).lerp(new THREE.Color(0xffffff), 0.35);
+    }
+    applyTheme();
+    matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme);
+    new MutationObserver(applyTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+    // Ripple origin in grid units; eases toward the pointer for a soft follow.
+    const target = { x: 0, z: 0 }, origin = { x: 0, z: 0 };
+    host.addEventListener('pointermove', (e) => {
+      const r = host.getBoundingClientRect();
+      target.x = ((e.clientX - r.left) / r.width - 0.5) * COLS * STEP;
+      target.z = ((e.clientY - r.top) / r.height - 0.5) * ROWS * STEP;
+    });
+    host.addEventListener('pointerleave', () => { target.x = 0; target.z = 0; });
+
+    const m = new THREE.Matrix4(), s = new THREE.Vector3(), p = new THREE.Vector3(), q = new THREE.Quaternion();
+    function frame(t) {
+      origin.x += (target.x - origin.x) * 0.06;
+      origin.z += (target.z - origin.z) * 0.06;
+      let i = 0;
+      for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
+        const x = (c - (COLS - 1) / 2) * STEP, z = (r - (ROWS - 1) / 2) * STEP;
+        const d = Math.hypot(x - origin.x, z - origin.z);
+        const h = 0.25 + (Math.sin(d * 0.9 - t * 0.0022) + 1) * 0.9 * Math.exp(-d * 0.08);
+        p.set(x, 0, z); s.set(1, h, 1);
+        mesh.setMatrixAt(i++, m.compose(p, q, s));
+      }
+      mesh.instanceMatrix.needsUpdate = true;
+      renderer.render(scene, camera);
+    }
+
+    function resize() {
+      const w = host.clientWidth, h = host.clientHeight;
+      if (!w || !h) return;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      frame(performance.now());
+    }
+    new ResizeObserver(resize).observe(host);
+    resize();
+
+    if (reduce) return; // one still frame only
+    // Pause while offscreen or while a section page covers the start screen.
+    let visible = true, raf = 0;
+    const covered = () => !!document.querySelector('dialog[open]');
+    new IntersectionObserver(([e]) => { visible = e.isIntersecting; kick(); }).observe(host);
+    document.querySelectorAll('dialog').forEach((d) => d.addEventListener('close', kick));
+    function kick() { if (visible && !raf) raf = requestAnimationFrame(loop); }
+    function loop(t) { raf = 0; if (!visible || covered()) return; frame(t); raf = requestAnimationFrame(loop); }
+    kick();
+  })();
+</script>
+</body>
 </html>
