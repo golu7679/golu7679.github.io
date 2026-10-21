@@ -57,6 +57,15 @@ button { font: inherit; color: inherit; }
 .pano { margin: 0 0 0 -4px; white-space: nowrap; font-weight: 300; font-size: clamp(52px, 9vh, 112px); line-height: .95; letter-spacing: -.03em; }
 .pano-sub { margin: 0 0 6px; display: flex; flex-wrap: wrap; gap: 4px 18px; font-size: 17px; font-weight: 300; color: var(--sub); }
 .pano-sub b { color: var(--accent); font-weight: 400; }
+.head-side { display: grid; gap: 8px; justify-items: end; min-width: 0; }
+.accents { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; margin-bottom: 4px; }
+.accents-label { font-size: 13px; color: var(--sub); }
+.accents-label b { color: var(--fg); font-weight: 600; }
+.swatches { display: flex; flex-wrap: wrap; gap: 4px; }
+.sw { width: 18px; height: 18px; padding: 0; border: 0; cursor: pointer; background: var(--c); outline-offset: 2px; }
+.sw[aria-checked="true"] { outline: 2px solid var(--fg); }
+.sw:focus-visible { outline: 2px solid var(--fg); outline-offset: 3px; }
+@media (max-width: 960px) { .head-side { justify-items: start; } .accents { justify-content: flex-start; } }
 
 .start { display: grid; gap: var(--gap); grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: minmax(150px, auto); min-height: 0; }
 .t { position: relative; overflow: hidden; min-width: 0; min-height: 0; background: var(--accent); color: var(--on-accent); padding: 14px; display: flex; flex-direction: column; gap: 6px; border: 0; text-align: left; }
@@ -202,11 +211,17 @@ dialog[open] .page { animation: turnstile .38s cubic-bezier(.1,.9,.2,1); }
 <main class="screen">
   <header class="head">
     <h1 class="pano" aria-label="Golu Rajak">golu rajak</h1>
-    <p class="pano-sub"><b>full-stack developer</b><span>west bengal, india</span><span>building since 2021</span></p>
+    <div class="head-side">
+      <p class="pano-sub"><b>full-stack developer</b><span>west bengal, india</span><span>building since 2021</span></p>
+      <div class="accents" role="radiogroup" aria-label="Accent colour">
+        <span class="accents-label">accent <b id="accent-name">emerald</b></span>
+        <div class="swatches" id="swatches"></div>
+      </div>
+    </div>
   </header>
 
   <div class="start">
-    <div class="t gl wide" id="gltile" role="img" aria-label="3D tile: the Rust logo shooting down bacteria and fungus spores. Click to fire.">
+    <div class="t gl wide" id="gltile" role="img" aria-label="3D tile: Ferris the Rust crab shooting down bacteria and fungus spores. Click to fire.">
       <span class="kills"><b id="kills">0</b> bugs squashed</span>
       <div class="over"><b>Building full-stack applications.</b><span>Always thinking about Rust.</span></div>
     </div>
@@ -428,6 +443,48 @@ dialog[open] .page { animation: turnstile .38s cubic-bezier(.1,.9,.2,1); }
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
+  // Accent picker: the 20 Windows Phone accent colours. Picking one overrides --accent and derives
+  // --accent-deep and a readable --on-accent (black or white, whichever contrasts more). The choice is
+  // remembered per browser; the page still renders with the default if storage is unavailable.
+  (function () {
+    const ACCENTS = [
+      ['lime', '#a4c400'], ['green', '#60a917'], ['emerald', '#008a00'], ['teal', '#00aba9'], ['cyan', '#1ba1e2'],
+      ['cobalt', '#0050ef'], ['indigo', '#6a00ff'], ['violet', '#aa00ff'], ['pink', '#f472d0'], ['magenta', '#d80073'],
+      ['crimson', '#a20025'], ['red', '#e51400'], ['orange', '#fa6800'], ['amber', '#f0a30a'], ['yellow', '#e3c800'],
+      ['brown', '#825a2c'], ['olive', '#6d8764'], ['steel', '#647687'], ['mauve', '#76608a'], ['taupe', '#87794e'],
+    ];
+    const root = document.documentElement, bar = document.getElementById('swatches'), label = document.getElementById('accent-name');
+    const lum = (hex) => {
+      const c = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+      return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+    };
+    function apply(name, hex, save) {
+      const L = lum(hex);
+      root.style.setProperty('--accent', hex);
+      // White text like Windows Phone whenever it is readable (4.5:1); black only on light accents.
+      const white = 1.05 / (L + 0.05), black = (L + 0.05) / 0.05;
+      const light = !(white >= 4.5 || white >= black);
+      root.style.setProperty('--on-accent', light ? '#000000' : '#ffffff');
+      // The alternate tile shade darkens less under black text so that text stays readable.
+      root.style.setProperty('--accent-deep', `color-mix(in srgb, ${hex} ${light ? 86 : 72}%, #000)`);
+      label.textContent = name;
+      bar.querySelectorAll('.sw').forEach((b) => b.setAttribute('aria-checked', String(b.dataset.name === name)));
+      if (save) { try { localStorage.setItem('accent', name); } catch (e) {} }
+    }
+    ACCENTS.forEach(([name, hex]) => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'sw'; b.dataset.name = name; b.title = name;
+      b.setAttribute('role', 'radio'); b.setAttribute('aria-label', name); b.setAttribute('aria-checked', 'false');
+      b.style.setProperty('--c', hex);
+      b.addEventListener('click', () => apply(name, hex, true));
+      bar.appendChild(b);
+    });
+    let saved = null;
+    try { saved = localStorage.getItem('accent'); } catch (e) {}
+    const start = ACCENTS.find(([n]) => n === saved) || ACCENTS.find(([n]) => n === 'emerald');
+    apply(start[0], start[1], false);
+  })();
+
   // Section pages: tiles with data-open show the matching <dialog>; Esc and the close button dismiss it.
   // A bare #section in the link (e.g. #experience) opens that page on load.
   document.querySelectorAll('[data-open]').forEach((b) => b.addEventListener('click', () => document.getElementById(b.dataset.open).showModal()));
@@ -448,9 +505,9 @@ dialog[open] .page { animation: turnstile .38s cubic-bezier(.1,.9,.2,1); }
     navigator.clipboard.writeText(email.textContent).then(() => done('Copied'), () => { select(); done('Selected'); });
   });
 
-  // 3D live tile: the Rust gear shoots down bacteria and fungus spores drifting in from the edges.
+  // 3D live tile: Ferris the Rust crab shoots down bacteria and fungus spores drifting in from the edges.
   // Each hit bursts the bug into particles and bumps the "bugs squashed" counter. Clicking the tile
-  // fires a shot toward the click; otherwise the gear targets the bug nearest the pointer (or itself).
+  // fires a shot toward the click; otherwise Ferris targets the bug nearest the pointer (or itself).
   // If three.js fails to load, the tile keeps its flat accent fill and caption.
   (function () {
     const host = document.getElementById('gltile');
@@ -463,61 +520,125 @@ dialog[open] .page { animation: turnstile .38s cubic-bezier(.1,.9,.2,1); }
     host.prepend(renderer.domElement);
 
     const scene = new THREE.Scene();
-    const DIST = 18, FOV = 35;
+    const FOV = 35;
     const camera = new THREE.PerspectiveCamera(FOV, 1, 0.1, 100);
-    camera.position.set(0, 0, DIST);
+    // Tilted about 30 degrees so the bugs read as 3D microbes crawling on a surface.
+    camera.position.set(0, -8.5, 15.5);
+    camera.lookAt(0, 0.3, 0);
+    const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+    const ray = new THREE.Raycaster();
+    // Screen point (NDC) -> point on the z=0 play plane.
+    function ndcToPlane(x, y) {
+      ray.setFromCamera(new THREE.Vector2(x, y), camera);
+      return ray.ray.intersectPlane(plane, new THREE.Vector3()) || new THREE.Vector3();
+    }
+    // True when a plane point is on screen (with a small inset).
+    const tmp = new THREE.Vector3();
+    function onScreen(p, inset) { tmp.copy(p).project(camera); return Math.abs(tmp.x) < 1 - inset && Math.abs(tmp.y) < 1 - inset; }
     scene.add(new THREE.AmbientLight(0xffffff, 0.6));
     const sun = new THREE.DirectionalLight(0xffffff, 0.85);
     sun.position.set(-5, 7, 10);
     scene.add(sun);
 
-    // Visible half-extents of the z=0 plane; set on resize.
-    let halfW = 10, halfH = 5.6;
-    const GEAR = new THREE.Vector3(0, 0.7, 0);
+    // Bounding box of the visible play plane (the view is a trapezoid when tilted); set on resize.
+    let cx = 0, cy = 0, halfW = 10, halfH = 6;
+    const GEAR = new THREE.Vector3(0, 0.7, 0); // where Ferris stands on the play plane
 
-    // ---- Rust gear: toothed ring extruded in rust orange, with the dark "R" disc inside ----
-    const R_OUT = 1.55, R_IN = 1.3, TEETH = 28;
-    const shape = new THREE.Shape();
-    for (let t = 0; t < TEETH; t++) {
-      const seg = (Math.PI * 2) / TEETH, a = t * seg;
-      const pts = [[R_IN, a], [R_OUT, a + seg * 0.2], [R_OUT, a + seg * 0.45], [R_IN, a + seg * 0.65]];
-      pts.forEach(([r, ang], i) => {
-        const x = Math.cos(ang) * r, y = Math.sin(ang) * r;
-        if (t === 0 && i === 0) shape.moveTo(x, y); else shape.lineTo(x, y);
+    // ---- Ferris the crab (the Rust mascot), drawn on a canvas and shown as a camera-facing sprite ----
+    // Coordinates follow a 1200x800 drawing of Ferris; the right half mirrors the left about x = 595.
+    const R_OUT = 1.8; // Ferris's reach: shots leave from here and bugs that get this close are pinched
+    function drawFerris() {
+      const c = document.createElement('canvas');
+      c.width = 1200; c.height = 800;
+      const g = c.getContext('2d');
+      const mirror = (fn) => { fn(); g.save(); g.translate(1190, 0); g.scale(-1, 1); fn(); g.restore(); };
+      g.lineCap = 'round'; g.lineJoin = 'round';
+      // Legs, behind the shell: a shadowed inner leg and a bright outer leg on each side.
+      mirror(() => {
+        g.strokeStyle = '#a52b00'; g.lineWidth = 34;
+        g.beginPath(); g.moveTo(270, 520); g.quadraticCurveTo(140, 560, 255, 690); g.stroke();
+        g.strokeStyle = '#f75a00'; g.lineWidth = 42;
+        g.beginPath(); g.moveTo(200, 450); g.quadraticCurveTo(30, 545, 225, 750); g.stroke();
       });
+      // Spiky shell: alternating tip and valley radii along the top arc, then a rounded belly.
+      const shell = g.createLinearGradient(0, 40, 0, 650);
+      shell.addColorStop(0, '#f39200'); shell.addColorStop(0.6, '#f74c00'); shell.addColorStop(1, '#c93d00');
+      g.beginPath();
+      for (let i = 0; i <= 26; i++) {
+        const ang = Math.PI * (160 - (140 * i) / 26) / 180, r = i % 2 ? 452 : 525;
+        const x = 595 + Math.cos(ang) * r, y = 560 - Math.sin(ang) * r;
+        if (i) g.lineTo(x, y); else g.moveTo(x, y);
+      }
+      g.lineTo(1050, 450);
+      g.quadraticCurveTo(595, 700, 140, 450);
+      g.closePath();
+      g.fillStyle = shell; g.strokeStyle = shell; g.lineWidth = 16;
+      g.stroke(); g.fill(); // the stroke rounds the spike tips
+      g.strokeStyle = '#a52b00'; g.lineWidth = 18;
+      g.beginPath(); g.moveTo(320, 565); g.quadraticCurveTo(595, 650, 870, 565); g.stroke();
+      // Claws with the pincer gap cut out, and the dark rim along each claw's top edge.
+      mirror(() => {
+        const cg = g.createLinearGradient(0, 560, 0, 790);
+        cg.addColorStop(0, '#f74c00'); cg.addColorStop(1, '#c43c00');
+        g.fillStyle = cg;
+        g.beginPath(); g.ellipse(468, 680, 142, 124, -0.1, 0, Math.PI * 2); g.fill();
+        g.globalCompositeOperation = 'destination-out';
+        // the open pincer: a wide wedge from the claw's inner edge to its tip
+        g.beginPath(); g.moveTo(410, 672); g.quadraticCurveTo(510, 628, 615, 650); g.quadraticCurveTo(560, 775, 410, 672); g.fill();
+        g.globalCompositeOperation = 'source-over';
+        g.strokeStyle = '#000'; g.lineWidth = 11;
+        g.beginPath(); g.moveTo(372, 622); g.quadraticCurveTo(470, 500, 592, 636); g.stroke();
+      });
+      // Eyes with their white highlights.
+      [[520, 465, 497], [720, 465, 703]].forEach(([x, y, hx]) => {
+        g.fillStyle = '#000'; g.beginPath(); g.ellipse(x, y, 60, 68, 0.12, 0, Math.PI * 2); g.fill();
+        g.fillStyle = '#fff'; g.beginPath(); g.ellipse(hx, y - 30, 24, 34, 0, 0, Math.PI * 2); g.fill();
+      });
+      return c;
     }
-    shape.closePath();
-    const hole = new THREE.Path();
-    hole.absarc(0, 0, 0.95, 0, Math.PI * 2, true);
-    shape.holes.push(hole);
-    const gearGeo = new THREE.ExtrudeGeometry(shape, { depth: 0.45, bevelEnabled: true, bevelThickness: 0.06, bevelSize: 0.04, bevelSegments: 2, curveSegments: 32 });
-    gearGeo.center();
-    const gear = new THREE.Group();
-    gear.add(new THREE.Mesh(gearGeo, new THREE.MeshStandardMaterial({ color: 0xce422b, metalness: 0.35, roughness: 0.45 })));
-    const cv = document.createElement('canvas');
-    cv.width = cv.height = 256;
-    const g2 = cv.getContext('2d');
-    g2.fillStyle = '#1c1c1c'; g2.beginPath(); g2.arc(128, 128, 128, 0, Math.PI * 2); g2.fill();
-    g2.fillStyle = '#f2ddd0'; g2.font = 'bold 190px Arial, Helvetica, sans-serif';
-    g2.textAlign = 'center'; g2.textBaseline = 'middle'; g2.fillText('R', 128, 140);
-    const disc = new THREE.Mesh(new THREE.CircleGeometry(1.0, 48), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(cv) }));
-    disc.position.z = 0.05;
-    gear.add(disc);
-    gear.position.copy(GEAR);
-    scene.add(gear);
-    let spin = 0;
+    const ferrisTex = new THREE.CanvasTexture(drawFerris());
+    ferrisTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+    const ferris = new THREE.Sprite(new THREE.SpriteMaterial({ map: ferrisTex, transparent: true }));
+    const FW = 5.4, FH = 3.6; // world size, keeping the drawing's 3:2 aspect
+    ferris.scale.set(FW, FH, 1);
+    ferris.position.copy(GEAR).setZ(1);
+    scene.add(ferris);
+    let recoil = 0, lean = 0; // recoil: 1 right after a shot, decays to 0; lean: sprite tilt toward the target
 
-    // ---- Bugs: rod bacteria (pale yellow ellipsoids) and fungus spores (violet clusters) ----
-    const bactGeo = new THREE.SphereGeometry(0.5, 20, 14);
-    const bactMat = new THREE.MeshStandardMaterial({ color: 0xeee36a, roughness: 0.6, emissive: 0x2a2400 });
+    // ---- Bugs: rod bacteria (pale yellow, covered in pili) and fungus spores (violet clusters) ----
+    // Rod-shaped bacillus: a capsule body (lathe profile turned onto the X axis) covered in short pili.
+    const BR = 0.3, BH = 0.42; // capsule radius, half-length of its straight section
+    const prof = [];
+    for (let i = 0; i <= 8; i++) { const a = -Math.PI / 2 + (i / 8) * (Math.PI / 2); prof.push(new THREE.Vector2(Math.cos(a) * BR, -BH + Math.sin(a) * BR)); }
+    for (let i = 0; i <= 8; i++) { const a = (i / 8) * (Math.PI / 2); prof.push(new THREE.Vector2(Math.cos(a) * BR, BH + Math.sin(a) * BR)); }
+    const bactGeo = new THREE.LatheGeometry(prof, 24);
+    bactGeo.rotateZ(-Math.PI / 2);
+    const bactMat = new THREE.MeshStandardMaterial({ color: 0xeee36a, roughness: 0.55, emissive: 0x2a2400 });
+    const PILI = 26;
+    const piliGeo = new THREE.CylinderGeometry(0.016, 0.01, 0.2, 5);
+    const piliMat = new THREE.MeshStandardMaterial({ color: 0xbfae35, roughness: 0.8 });
+    const UP = new THREE.Vector3(0, 1, 0);
     const sporeGeo = new THREE.SphereGeometry(1, 16, 12);
     const fungMat = new THREE.MeshStandardMaterial({ color: 0xa77be0, roughness: 0.7, emissive: 0x1a0830 });
     const bugs = [];
     function makeBug(kind) {
       let obj;
+      let body = null;
       if (kind === 'b') {
-        obj = new THREE.Mesh(bactGeo, bactMat);
-        obj.scale.set(1.6, 0.62, 0.62);
+        obj = new THREE.Group();
+        obj.rotation.order = 'ZYX'; // roll about the rod's own axis, then turn to the heading
+        body = new THREE.Mesh(bactGeo, bactMat);
+        obj.add(body);
+        for (let i = 0; i < PILI; i++) {
+          // Pick a point on the capsule surface and stand a pilus on its outward normal.
+          const sx = (Math.random() * 2 - 1) * (BH + BR * 0.75), phi = Math.random() * Math.PI * 2;
+          const ax = THREE.MathUtils.clamp(sx, -BH, BH), dx = sx - ax, rr = Math.sqrt(Math.max(0, BR * BR - dx * dx));
+          const n = new THREE.Vector3(dx, Math.cos(phi) * rr, Math.sin(phi) * rr).normalize();
+          const pilus = new THREE.Mesh(piliGeo, piliMat);
+          pilus.quaternion.setFromUnitVectors(UP, n);
+          pilus.position.set(ax, 0, 0).addScaledVector(n, BR + 0.09);
+          obj.add(pilus);
+        }
       } else {
         obj = new THREE.Group();
         const core = new THREE.Mesh(sporeGeo, fungMat); core.scale.setScalar(0.36); obj.add(core);
@@ -529,12 +650,12 @@ dialog[open] .page { animation: turnstile .38s cubic-bezier(.1,.9,.2,1); }
         }
       }
       scene.add(obj);
-      return { kind, obj, r: kind === 'b' ? 0.6 : 0.55, v: new THREE.Vector3(), phase: Math.random() * 6.28, alive: true };
+      return { kind, obj, body, r: kind === 'b' ? 0.6 : 0.55, v: new THREE.Vector3(), phase: Math.random() * 6.28, alive: true };
     }
     function spawn(bug, inside) {
       const a = Math.random() * Math.PI * 2;
-      if (inside) bug.obj.position.set((Math.random() - 0.5) * halfW * 1.6, (Math.random() - 0.5) * halfH * 1.4, 0);
-      else bug.obj.position.set(Math.cos(a) * (halfW + 1.2), Math.sin(a) * (halfH + 1.2), 0);
+      if (inside) bug.obj.position.set(cx + (Math.random() - 0.5) * halfW * 1.3, cy + (Math.random() - 0.5) * halfH * 1.2, 0);
+      else bug.obj.position.set(cx + Math.cos(a) * (halfW + 1.5), cy + Math.sin(a) * (halfH + 1.5), 0);
       if (bug.obj.position.distanceTo(GEAR) < 3) bug.obj.position.x += 4;
       bug.v.subVectors(GEAR, bug.obj.position).setZ(0).normalize().multiplyScalar(0.55 + Math.random() * 0.5);
       bug.obj.visible = true;
@@ -548,10 +669,11 @@ dialog[open] .page { animation: turnstile .38s cubic-bezier(.1,.9,.2,1); }
     function fire(toward, target) {
       const dir = new THREE.Vector3().subVectors(toward, GEAR).setZ(0).normalize();
       const m = new THREE.Mesh(shotGeo, shotMat);
-      m.position.copy(GEAR).addScaledVector(dir, R_OUT + 0.1);
+      m.position.copy(GEAR).addScaledVector(dir, R_OUT);
       scene.add(m);
+      recoil = 1;
+      lean = THREE.MathUtils.clamp(-dir.x * 0.22, -0.22, 0.22);
       shots.push({ m, v: dir.multiplyScalar(11), target });
-      spin = 6;
     }
     function burst(at, color) {
       const N = 26, pos = new Float32Array(N * 3), vel = [];
@@ -581,7 +703,7 @@ dialog[open] .page { animation: turnstile .38s cubic-bezier(.1,.9,.2,1); }
     let hovering = false;
     function toWorld(e) {
       const r = host.getBoundingClientRect();
-      return new THREE.Vector3(((e.clientX - r.left) / r.width * 2 - 1) * halfW, -((e.clientY - r.top) / r.height * 2 - 1) * halfH, 0);
+      return ndcToPlane((e.clientX - r.left) / r.width * 2 - 1, -((e.clientY - r.top) / r.height * 2 - 1));
     }
     host.addEventListener('pointermove', (e) => { pointer.copy(toWorld(e)); hovering = true; });
     host.addEventListener('pointerleave', () => { hovering = false; });
@@ -592,8 +714,12 @@ dialog[open] .page { animation: turnstile .38s cubic-bezier(.1,.9,.2,1); }
 
     let cooldown = 0.6, last = 0;
     function step(dt, t) {
-      gear.rotation.z -= dt * (0.35 + spin);
-      spin *= Math.pow(0.04, dt);
+      // Ferris idles with a bob, squashes on each shot, and leans toward what it is shooting.
+      recoil *= Math.pow(0.02, dt);
+      lean *= Math.pow(0.3, dt);
+      ferris.position.z = 1 + Math.sin(t * 2.4) * 0.12;
+      ferris.scale.set(FW * (1 + recoil * 0.06), FH * (1 - recoil * 0.09), 1);
+      ferris.material.rotation += (lean - ferris.material.rotation) * Math.min(1, dt * 8);
 
       for (const b of bugs) {
         if (!b.alive) continue;
@@ -602,9 +728,12 @@ dialog[open] .page { animation: turnstile .38s cubic-bezier(.1,.9,.2,1); }
         // sideways wobble so they swim rather than slide
         const side = new THREE.Vector3(-b.v.y, b.v.x, 0).normalize();
         p.addScaledVector(side, Math.sin(t * 2.2 + b.phase) * dt * 0.6);
-        b.obj.rotation.z = Math.atan2(b.v.y, b.v.x) + Math.sin(t * 3 + b.phase) * 0.25;
+        b.obj.rotation.z = Math.atan2(b.v.y, b.v.x) + Math.sin(t * 1.6 + b.phase) * 0.18;
         if (b.kind === 'f') { b.obj.rotation.x += dt * 0.8; b.obj.rotation.y += dt * 0.6; }
-        else b.obj.scale.y = 0.62 + Math.sin(t * 6 + b.phase) * 0.05;
+        else {
+          b.obj.rotation.x += dt * 1.4; // slow roll along the rod so the pili turn into view
+          b.body.scale.set(1 + Math.sin(t * 3 + b.phase) * 0.04, 1, 1); // gentle stretch
+        }
         if (p.distanceTo(GEAR) < R_OUT + b.r) kill(b);
       }
 
@@ -615,7 +744,7 @@ dialog[open] .page { animation: turnstile .38s cubic-bezier(.1,.9,.2,1); }
         for (const b of bugs) {
           if (!b.alive) continue;
           const p = b.obj.position;
-          if (Math.abs(p.x) > halfW || Math.abs(p.y) > halfH) continue; // only visible targets
+          if (!onScreen(p, 0.04)) continue; // only visible targets
           const d = p.distanceTo(from);
           if (d < bd) { bd = d; best = b; }
         }
@@ -635,7 +764,7 @@ dialog[open] .page { animation: turnstile .38s cubic-bezier(.1,.9,.2,1); }
           if (b.alive && s.m.position.distanceTo(b.obj.position) < b.r) { kill(b); hit = true; break; }
         }
         const p = s.m.position;
-        if (hit || Math.abs(p.x) > halfW + 2 || Math.abs(p.y) > halfH + 2) { scene.remove(s.m); shots.splice(i, 1); }
+        if (hit || Math.abs(p.x - cx) > halfW + 2 || Math.abs(p.y - cy) > halfH + 2) { scene.remove(s.m); shots.splice(i, 1); }
       }
 
       for (let i = bursts.length - 1; i >= 0; i--) {
@@ -656,8 +785,11 @@ dialog[open] .page { animation: turnstile .38s cubic-bezier(.1,.9,.2,1); }
       renderer.setSize(w, h, false);
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
-      halfH = Math.tan((FOV / 2) * Math.PI / 180) * DIST;
-      halfW = halfH * camera.aspect;
+      camera.updateMatrixWorld(); // ray-casting below needs the tilted pose, not the default one
+      const c = [ndcToPlane(-1, -1), ndcToPlane(1, -1), ndcToPlane(-1, 1), ndcToPlane(1, 1)];
+      const xs = c.map((v) => v.x), ys = c.map((v) => v.y);
+      cx = (Math.min(...xs) + Math.max(...xs)) / 2; cy = (Math.min(...ys) + Math.max(...ys)) / 2;
+      halfW = (Math.max(...xs) - Math.min(...xs)) / 2; halfH = (Math.max(...ys) - Math.min(...ys)) / 2;
       renderer.render(scene, camera);
     }
     new ResizeObserver(resize).observe(host);
