@@ -96,6 +96,9 @@ button { font: inherit; color: inherit; }
 .gl .over { position: relative; z-index: 1; margin-top: auto; padding: 16px; display: grid; gap: 2px; background: linear-gradient(transparent, color-mix(in srgb, var(--accent-deep) 85%, transparent)); pointer-events: none; }
 .gl .over b { font-weight: 300; font-size: clamp(22px, 3.4vh, 32px); line-height: 1.1; }
 .gl .over span { font-size: 13px; opacity: .85; }
+.gl { cursor: crosshair; }
+.kills { position: absolute; top: 12px; right: 14px; z-index: 1; font-size: 13px; pointer-events: none; font-variant-numeric: tabular-nums; }
+.kills b { font-weight: 300; font-size: 22px; margin-right: 4px; }
 
 .link svg { width: clamp(28px, 4.4vh, 40px); height: clamp(28px, 4.4vh, 40px); }
 .icon { width: clamp(28px, 4.4vh, 40px); height: clamp(28px, 4.4vh, 40px); flex: none; }
@@ -203,7 +206,8 @@ dialog[open] .page { animation: turnstile .38s cubic-bezier(.1,.9,.2,1); }
   </header>
 
   <div class="start">
-    <div class="t gl wide" id="gltile" role="img" aria-label="3D tile: a field of blocks rippling in a wave that follows the pointer">
+    <div class="t gl wide" id="gltile" role="img" aria-label="3D tile: the Rust logo shooting down bacteria and fungus spores. Click to fire.">
+      <span class="kills"><b id="kills">0</b> bugs squashed</span>
       <div class="over"><b>Building full-stack applications.</b><span>Always thinking about Rust.</span></div>
     </div>
 
@@ -444,10 +448,13 @@ dialog[open] .page { animation: turnstile .38s cubic-bezier(.1,.9,.2,1); }
     navigator.clipboard.writeText(email.textContent).then(() => done('Copied'), () => { select(); done('Selected'); });
   });
 
-  // 3D live tile: a grid of blocks rippling outward from the pointer, drawn in the theme accent.
-  // If three.js fails to load the tile keeps its flat accent fill and caption.
+  // 3D live tile: the Rust gear shoots down bacteria and fungus spores drifting in from the edges.
+  // Each hit bursts the bug into particles and bumps the "bugs squashed" counter. Clicking the tile
+  // fires a shot toward the click; otherwise the gear targets the bug nearest the pointer (or itself).
+  // If three.js fails to load, the tile keeps its flat accent fill and caption.
   (function () {
     const host = document.getElementById('gltile');
+    const counter = document.getElementById('kills');
     if (!window.THREE || !host) return;
     const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
     let renderer;
@@ -456,51 +463,190 @@ dialog[open] .page { animation: turnstile .38s cubic-bezier(.1,.9,.2,1); }
     host.prepend(renderer.domElement);
 
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 100);
-    camera.position.set(0, 13, 15);
-    camera.lookAt(0, 0, 1);
-
-    const COLS = 20, ROWS = 12, STEP = 1.05;
-    const geo = new THREE.BoxGeometry(0.9, 1, 0.9);
-    geo.translate(0, 0.5, 0); // grow upward from the floor
-    const mat = new THREE.MeshLambertMaterial({ color: 0xffffff });
-    const mesh = new THREE.InstancedMesh(geo, mat, COLS * ROWS);
-    scene.add(mesh);
-    scene.add(new THREE.AmbientLight(0xffffff, 0.55));
-    const sun = new THREE.DirectionalLight(0xffffff, 0.75);
-    sun.position.set(-6, 12, 8);
+    const DIST = 18, FOV = 35;
+    const camera = new THREE.PerspectiveCamera(FOV, 1, 0.1, 100);
+    camera.position.set(0, 0, DIST);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+    const sun = new THREE.DirectionalLight(0xffffff, 0.85);
+    sun.position.set(-5, 7, 10);
     scene.add(sun);
 
-    function applyTheme() {
-      const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#008a00';
-      mat.color.set(accent).lerp(new THREE.Color(0xffffff), 0.35);
+    // Visible half-extents of the z=0 plane; set on resize.
+    let halfW = 10, halfH = 5.6;
+    const GEAR = new THREE.Vector3(0, 0.7, 0);
+
+    // ---- Rust gear: toothed ring extruded in rust orange, with the dark "R" disc inside ----
+    const R_OUT = 1.55, R_IN = 1.3, TEETH = 28;
+    const shape = new THREE.Shape();
+    for (let t = 0; t < TEETH; t++) {
+      const seg = (Math.PI * 2) / TEETH, a = t * seg;
+      const pts = [[R_IN, a], [R_OUT, a + seg * 0.2], [R_OUT, a + seg * 0.45], [R_IN, a + seg * 0.65]];
+      pts.forEach(([r, ang], i) => {
+        const x = Math.cos(ang) * r, y = Math.sin(ang) * r;
+        if (t === 0 && i === 0) shape.moveTo(x, y); else shape.lineTo(x, y);
+      });
     }
-    applyTheme();
-    matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme);
-    new MutationObserver(applyTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    shape.closePath();
+    const hole = new THREE.Path();
+    hole.absarc(0, 0, 0.95, 0, Math.PI * 2, true);
+    shape.holes.push(hole);
+    const gearGeo = new THREE.ExtrudeGeometry(shape, { depth: 0.45, bevelEnabled: true, bevelThickness: 0.06, bevelSize: 0.04, bevelSegments: 2, curveSegments: 32 });
+    gearGeo.center();
+    const gear = new THREE.Group();
+    gear.add(new THREE.Mesh(gearGeo, new THREE.MeshStandardMaterial({ color: 0xce422b, metalness: 0.35, roughness: 0.45 })));
+    const cv = document.createElement('canvas');
+    cv.width = cv.height = 256;
+    const g2 = cv.getContext('2d');
+    g2.fillStyle = '#1c1c1c'; g2.beginPath(); g2.arc(128, 128, 128, 0, Math.PI * 2); g2.fill();
+    g2.fillStyle = '#f2ddd0'; g2.font = 'bold 190px Arial, Helvetica, sans-serif';
+    g2.textAlign = 'center'; g2.textBaseline = 'middle'; g2.fillText('R', 128, 140);
+    const disc = new THREE.Mesh(new THREE.CircleGeometry(1.0, 48), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(cv) }));
+    disc.position.z = 0.05;
+    gear.add(disc);
+    gear.position.copy(GEAR);
+    scene.add(gear);
+    let spin = 0;
 
-    // Ripple origin in grid units; eases toward the pointer for a soft follow.
-    const target = { x: 0, z: 0 }, origin = { x: 0, z: 0 };
-    host.addEventListener('pointermove', (e) => {
-      const r = host.getBoundingClientRect();
-      target.x = ((e.clientX - r.left) / r.width - 0.5) * COLS * STEP;
-      target.z = ((e.clientY - r.top) / r.height - 0.5) * ROWS * STEP;
-    });
-    host.addEventListener('pointerleave', () => { target.x = 0; target.z = 0; });
-
-    const m = new THREE.Matrix4(), s = new THREE.Vector3(), p = new THREE.Vector3(), q = new THREE.Quaternion();
-    function frame(t) {
-      origin.x += (target.x - origin.x) * 0.06;
-      origin.z += (target.z - origin.z) * 0.06;
-      let i = 0;
-      for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
-        const x = (c - (COLS - 1) / 2) * STEP, z = (r - (ROWS - 1) / 2) * STEP;
-        const d = Math.hypot(x - origin.x, z - origin.z);
-        const h = 0.25 + (Math.sin(d * 0.9 - t * 0.0022) + 1) * 0.9 * Math.exp(-d * 0.08);
-        p.set(x, 0, z); s.set(1, h, 1);
-        mesh.setMatrixAt(i++, m.compose(p, q, s));
+    // ---- Bugs: rod bacteria (pale yellow ellipsoids) and fungus spores (violet clusters) ----
+    const bactGeo = new THREE.SphereGeometry(0.5, 20, 14);
+    const bactMat = new THREE.MeshStandardMaterial({ color: 0xeee36a, roughness: 0.6, emissive: 0x2a2400 });
+    const sporeGeo = new THREE.SphereGeometry(1, 16, 12);
+    const fungMat = new THREE.MeshStandardMaterial({ color: 0xa77be0, roughness: 0.7, emissive: 0x1a0830 });
+    const bugs = [];
+    function makeBug(kind) {
+      let obj;
+      if (kind === 'b') {
+        obj = new THREE.Mesh(bactGeo, bactMat);
+        obj.scale.set(1.6, 0.62, 0.62);
+      } else {
+        obj = new THREE.Group();
+        const core = new THREE.Mesh(sporeGeo, fungMat); core.scale.setScalar(0.36); obj.add(core);
+        for (let i = 0; i < 8; i++) {
+          const s = new THREE.Mesh(sporeGeo, fungMat);
+          s.scale.setScalar(0.12 + Math.random() * 0.08);
+          s.position.set(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).normalize().multiplyScalar(0.42);
+          obj.add(s);
+        }
       }
-      mesh.instanceMatrix.needsUpdate = true;
+      scene.add(obj);
+      return { kind, obj, r: kind === 'b' ? 0.6 : 0.55, v: new THREE.Vector3(), phase: Math.random() * 6.28, alive: true };
+    }
+    function spawn(bug, inside) {
+      const a = Math.random() * Math.PI * 2;
+      if (inside) bug.obj.position.set((Math.random() - 0.5) * halfW * 1.6, (Math.random() - 0.5) * halfH * 1.4, 0);
+      else bug.obj.position.set(Math.cos(a) * (halfW + 1.2), Math.sin(a) * (halfH + 1.2), 0);
+      if (bug.obj.position.distanceTo(GEAR) < 3) bug.obj.position.x += 4;
+      bug.v.subVectors(GEAR, bug.obj.position).setZ(0).normalize().multiplyScalar(0.55 + Math.random() * 0.5);
+      bug.obj.visible = true;
+      bug.alive = true;
+    }
+
+    // ---- Shots and bursts ----
+    const shotGeo = new THREE.SphereGeometry(0.13, 12, 8);
+    const shotMat = new THREE.MeshBasicMaterial({ color: 0xffc9a8 });
+    const shots = [], bursts = [];
+    function fire(toward, target) {
+      const dir = new THREE.Vector3().subVectors(toward, GEAR).setZ(0).normalize();
+      const m = new THREE.Mesh(shotGeo, shotMat);
+      m.position.copy(GEAR).addScaledVector(dir, R_OUT + 0.1);
+      scene.add(m);
+      shots.push({ m, v: dir.multiplyScalar(11), target });
+      spin = 6;
+    }
+    function burst(at, color) {
+      const N = 26, pos = new Float32Array(N * 3), vel = [];
+      for (let i = 0; i < N; i++) {
+        pos.set([at.x, at.y, at.z], i * 3);
+        vel.push(new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).normalize().multiplyScalar(1.5 + Math.random() * 3));
+      }
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+      const mat = new THREE.PointsMaterial({ color, size: 0.16, transparent: true });
+      const pts = new THREE.Points(geo, mat);
+      scene.add(pts);
+      bursts.push({ pts, vel, life: 0.8 });
+    }
+    let kills = 0;
+    function kill(bug) {
+      bug.alive = false;
+      bug.obj.visible = false;
+      burst(bug.obj.position, bug.kind === 'b' ? 0xeee36a : 0xc9a6f2);
+      kills++;
+      if (counter) counter.textContent = kills;
+      setTimeout(() => spawn(bug, false), 600 + Math.random() * 1400);
+    }
+
+    // ---- Pointer: aim preference on hover, direct shot on click ----
+    const pointer = new THREE.Vector3();
+    let hovering = false;
+    function toWorld(e) {
+      const r = host.getBoundingClientRect();
+      return new THREE.Vector3(((e.clientX - r.left) / r.width * 2 - 1) * halfW, -((e.clientY - r.top) / r.height * 2 - 1) * halfH, 0);
+    }
+    host.addEventListener('pointermove', (e) => { pointer.copy(toWorld(e)); hovering = true; });
+    host.addEventListener('pointerleave', () => { hovering = false; });
+    host.addEventListener('click', (e) => { if (!reduce) fire(toWorld(e), null); });
+
+    const COUNT = 9;
+    for (let i = 0; i < COUNT; i++) bugs.push(makeBug(i % 3 === 2 ? 'f' : 'b'));
+
+    let cooldown = 0.6, last = 0;
+    function step(dt, t) {
+      gear.rotation.z -= dt * (0.35 + spin);
+      spin *= Math.pow(0.04, dt);
+
+      for (const b of bugs) {
+        if (!b.alive) continue;
+        const p = b.obj.position;
+        p.addScaledVector(b.v, dt);
+        // sideways wobble so they swim rather than slide
+        const side = new THREE.Vector3(-b.v.y, b.v.x, 0).normalize();
+        p.addScaledVector(side, Math.sin(t * 2.2 + b.phase) * dt * 0.6);
+        b.obj.rotation.z = Math.atan2(b.v.y, b.v.x) + Math.sin(t * 3 + b.phase) * 0.25;
+        if (b.kind === 'f') { b.obj.rotation.x += dt * 0.8; b.obj.rotation.y += dt * 0.6; }
+        else b.obj.scale.y = 0.62 + Math.sin(t * 6 + b.phase) * 0.05;
+        if (p.distanceTo(GEAR) < R_OUT + b.r) kill(b);
+      }
+
+      cooldown -= dt;
+      if (cooldown <= 0) {
+        const from = hovering ? pointer : GEAR;
+        let best = null, bd = Infinity;
+        for (const b of bugs) {
+          if (!b.alive) continue;
+          const p = b.obj.position;
+          if (Math.abs(p.x) > halfW || Math.abs(p.y) > halfH) continue; // only visible targets
+          const d = p.distanceTo(from);
+          if (d < bd) { bd = d; best = b; }
+        }
+        if (best) { fire(best.obj.position, best); cooldown = 0.55; } else cooldown = 0.2;
+      }
+
+      for (let i = shots.length - 1; i >= 0; i--) {
+        const s = shots[i];
+        if (s.target && s.target.alive) {
+          // light homing so aimed shots land on moving bugs
+          const want = new THREE.Vector3().subVectors(s.target.obj.position, s.m.position).setZ(0).normalize().multiplyScalar(11);
+          s.v.lerp(want, Math.min(1, dt * 8));
+        }
+        s.m.position.addScaledVector(s.v, dt);
+        let hit = false;
+        for (const b of bugs) {
+          if (b.alive && s.m.position.distanceTo(b.obj.position) < b.r) { kill(b); hit = true; break; }
+        }
+        const p = s.m.position;
+        if (hit || Math.abs(p.x) > halfW + 2 || Math.abs(p.y) > halfH + 2) { scene.remove(s.m); shots.splice(i, 1); }
+      }
+
+      for (let i = bursts.length - 1; i >= 0; i--) {
+        const b = bursts[i];
+        b.life -= dt;
+        const arr = b.pts.geometry.attributes.position.array;
+        b.vel.forEach((v, k) => { arr[k * 3] += v.x * dt; arr[k * 3 + 1] += v.y * dt; arr[k * 3 + 2] += v.z * dt; v.multiplyScalar(0.95); });
+        b.pts.geometry.attributes.position.needsUpdate = true;
+        b.pts.material.opacity = Math.max(0, b.life / 0.8);
+        if (b.life <= 0) { scene.remove(b.pts); b.pts.geometry.dispose(); b.pts.material.dispose(); bursts.splice(i, 1); }
+      }
       renderer.render(scene, camera);
     }
 
@@ -510,10 +656,14 @@ dialog[open] .page { animation: turnstile .38s cubic-bezier(.1,.9,.2,1); }
       renderer.setSize(w, h, false);
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
-      frame(performance.now());
+      halfH = Math.tan((FOV / 2) * Math.PI / 180) * DIST;
+      halfW = halfH * camera.aspect;
+      renderer.render(scene, camera);
     }
     new ResizeObserver(resize).observe(host);
     resize();
+    bugs.forEach((b) => spawn(b, true));
+    step(0, 0);
 
     if (reduce) return; // one still frame only
     // Pause while offscreen or while a section page covers the start screen.
@@ -521,8 +671,15 @@ dialog[open] .page { animation: turnstile .38s cubic-bezier(.1,.9,.2,1); }
     const covered = () => !!document.querySelector('dialog[open]');
     new IntersectionObserver(([e]) => { visible = e.isIntersecting; kick(); }).observe(host);
     document.querySelectorAll('dialog').forEach((d) => d.addEventListener('close', kick));
-    function kick() { if (visible && !raf) raf = requestAnimationFrame(loop); }
-    function loop(t) { raf = 0; if (!visible || covered()) return; frame(t); raf = requestAnimationFrame(loop); }
+    function kick() { if (visible && !raf) { last = 0; raf = requestAnimationFrame(loop); } }
+    function loop(t) {
+      raf = 0;
+      if (!visible || covered()) return;
+      const dt = last ? Math.min((t - last) / 1000, 0.05) : 0;
+      last = t;
+      step(dt, t / 1000);
+      raf = requestAnimationFrame(loop);
+    }
     kick();
   })();
 </script>
