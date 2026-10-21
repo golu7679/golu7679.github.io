@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="Golu Rajak, full-stack developer from Kolkata. Experience, projects and contact.">
+<meta name="description" content="Golu Rajak, full-stack developer from West Bengal, India. Experience, projects and contact.">
 <style>
 :root { color-scheme: light; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
 body { margin: 0; }
@@ -23,8 +23,8 @@ img { max-width: 100%; }
   --bg: #ffffff;
   --fg: #000000;
   --sub: #6b6b6b;
-  --accent: #0050ef;
-  --accent-deep: #003bb3;
+  --accent: #d80073;
+  --accent-deep: #9e0055;
   --on-accent: #ffffff;
   --plate: #e8e8e8;
   --plate-line: #d2d2d2;
@@ -33,13 +33,13 @@ img { max-width: 100%; }
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #000000; --fg: #ffffff; --sub: #a3a3a3; --accent: #1b62f5; --accent-deep: #0a46c4;
+    --bg: #000000; --fg: #ffffff; --sub: #a3a3a3; --accent: #e3157f; --accent-deep: #a3005a;
     --plate: #1f1f1f; --plate-line: #333333;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #000000; --fg: #ffffff; --sub: #a3a3a3; --accent: #1b62f5; --accent-deep: #0a46c4;
+  --bg: #000000; --fg: #ffffff; --sub: #a3a3a3; --accent: #e3157f; --accent-deep: #a3005a;
   --plate: #1f1f1f; --plate-line: #333333;
   color-scheme: dark;
 }
@@ -199,7 +199,7 @@ dialog[open] .page { animation: turnstile .38s cubic-bezier(.1,.9,.2,1); }
 <main class="screen">
   <header class="head">
     <h1 class="pano" aria-label="Golu Rajak">golu rajak</h1>
-    <p class="pano-sub"><b>full-stack developer</b><span>kolkata, india</span><span>building since 2021</span></p>
+    <p class="pano-sub"><b>full-stack developer</b><span>west bengal, india</span><span>building since 2021</span></p>
   </header>
 
   <div class="start">
@@ -221,14 +221,17 @@ dialog[open] .page { animation: turnstile .38s cubic-bezier(.1,.9,.2,1); }
 
     <button class="t plate live tilt wide a-abt" data-open="about" aria-label="Open about">
       <span class="faces" style="--d:1.5s">
-        <span class="face"><span class="h">Full-stack developer from Kolkata.</span></span>
+        <span class="face"><span class="h">Full-stack developer from West Bengal.</span></span>
         <span class="face back"><span class="sm">Web and mobile applications, from the interface to the database.</span></span>
       </span>
       <span class="tname-fixed">about</span>
     </button>
 
     <div class="t live a-s1 deep"><span class="faces" style="--d:3s"><span class="face"><span class="big">5</span><span class="tname">years</span></span><span class="face back"><span class="sm">Shipping software since May 2021</span></span></span></div>
-    <div class="t live a-s2"><span class="faces" style="--d:4.5s"><span class="face"><span class="big">36</span><span class="tname">repos</span></span><span class="face back"><span class="sm">Public on GitHub since 2019</span></span></span></div>
+    <a class="t link tilt a-s2" href="golu_rajak_resume.pdf" download aria-label="Download résumé (PDF)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M6 2.5h8l4 4v15H6z"/><path d="M14 2.5v4h4M12 10v7m-3-3 3 3 3-3"/></svg>
+      <span class="tname">résumé</span>
+    </a>
 
     <button class="t deep live tilt wide a-prj" data-open="projects" aria-label="Open projects">
       <span class="faces" style="--d:.8s">
@@ -236,7 +239,7 @@ dialog[open] .page { animation: turnstile .38s cubic-bezier(.1,.9,.2,1); }
         <span class="face back"><ul class="rows">
           <li>expressts-boilerplate<span>Express + TypeScript starter kit</span></li>
           <li>hotel-reservation<span>React, Express, MongoDB</span></li>
-          <li>Earlier work<span>36 public repositories</span></li>
+          <li>Earlier work<span>More on GitHub</span></li>
         </ul></span>
       </span>
       <span class="tname-fixed">projects</span>
@@ -280,15 +283,14 @@ dialog[open] .page { animation: turnstile .38s cubic-bezier(.1,.9,.2,1); }
     <h2 id="about-h">about</h2>
     <div class="pg">
       <div class="t p6" style="padding:24px">
-        <p style="font-size:clamp(18px,2vw,22px);font-weight:300;line-height:1.4;max-width:58ch">I'm a full-stack developer from Kolkata. I build web and mobile applications end to end, from the interface people use to the database behind it.</p>
+        <p style="font-size:clamp(18px,2vw,22px);font-weight:300;line-height:1.4;max-width:58ch">I'm a full-stack developer from West Bengal, India. I build web and mobile applications end to end, from the interface people use to the database behind it.</p>
       </div>
       <div class="t plate p3">
         <span class="cap">At a glance</span>
         <div class="kv">
-          <div><b>Based in</b><i>Greater Kolkata</i></div>
+          <div><b>Based in</b><i>West Bengal, India</i></div>
           <div><b>Building software since</b><i>2021</i></div>
           <div><b>Degree</b><i>MCA</i></div>
-          <div><b>On GitHub since</b><i>2019</i></div>
         </div>
       </div>
       <div class="t deep p3">
@@ -363,7 +365,7 @@ dialog[open] .page { animation: turnstile .38s cubic-bezier(.1,.9,.2,1); }
           <li><span class="nm">google-form-angular-nestjs</span><span class="m">TypeScript</span><span class="m">2023</span></li>
           <li><span class="nm">discord-bot-ts</span><span class="m">TypeScript</span><span class="m">2024</span></li>
         </ul>
-        <a href="https://github.com/golu7679?tab=repositories" style="color:var(--accent);font-weight:600;font-size:14px">All 36 repositories &rsaquo;</a>
+        <a href="https://github.com/golu7679?tab=repositories" style="color:var(--accent);font-weight:600;font-size:14px">More on GitHub &rsaquo;</a>
       </div>
     </div>
   </div>
@@ -470,7 +472,7 @@ dialog[open] .page { animation: turnstile .38s cubic-bezier(.1,.9,.2,1); }
     scene.add(sun);
 
     function applyTheme() {
-      const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#0050ef';
+      const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#d80073';
       mat.color.set(accent).lerp(new THREE.Color(0xffffff), 0.35);
     }
     applyTheme();
