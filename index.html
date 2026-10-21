@@ -572,7 +572,7 @@ dialog[open] .page { animation: turnstile .38s cubic-bezier(.1,.9,.2,1); }
       bug.obj.visible = false;
       burst(bug.obj.position, bug.kind === 'b' ? 0xeee36a : 0xc9a6f2);
       kills++;
-      if (counter) counter.textContent = kills;
+      if (counter) { counter.textContent = kills; counter.nextSibling.textContent = kills === 1 ? ' bug squashed' : ' bugs squashed'; }
       setTimeout(() => spawn(bug, false), 600 + Math.random() * 1400);
     }
 
