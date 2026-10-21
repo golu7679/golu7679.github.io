@@ -135,6 +135,13 @@ button { font: inherit; color: inherit; }
 @media (max-width: 600px) {
   .screen { padding-inline: 16px; }
 }
+/* Phones and tablets scroll instead of fitting one screen. Live-tile faces are absolutely positioned, so
+   their text cannot grow the tile: give the section tiles room and keep headings at a fixed size. */
+@media not all and (min-width: 960px) and (min-height: 620px) {
+  .start > .live.wide { min-height: 210px; }
+  .h { font-size: 24px; }
+  .big { font-size: 44px; }
+}
 
 /* ---------- Detail pages (dialogs) ---------- */
 dialog { padding: 0; border: 0; margin: 0; width: 100%; max-width: 100%; height: 100%; max-height: 100%; background: var(--bg); color: var(--fg); }
